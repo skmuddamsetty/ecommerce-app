@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 function Login(props) {
+  var [email, setEmail] = useState("abc@test.com");
+  var [password, setPassword] = useState("");
   return (
     <div className="row">
       <div className="col-lg-5 col-md-7 mx-auto">
@@ -20,6 +22,11 @@ function Login(props) {
                 type="text"
                 className="form-control"
                 id="email"
+                name="email"
+                value={email}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                }}
                 placeholder="Email"
               />
             </div>
@@ -29,6 +36,11 @@ function Login(props) {
                 type="text"
                 className="form-control"
                 id="password"
+                name="password"
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                }}
                 placeholder="Password"
               />
             </div>
