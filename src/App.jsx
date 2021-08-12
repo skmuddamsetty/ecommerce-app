@@ -10,15 +10,13 @@ import Navbar from "./Navbar";
 function App() {
   return (
     <HashRouter>
-      <div className="container-fluid">
-        <Navbar />
-        <Switch>
-          <Route path="/" exact={true} component={Login} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/register" component={Register} />
-          <Route path="*" component={NoMatchPage} />
-        </Switch>
-      </div>
+      <Navbar />
+      <Switch>
+        <Route path="/" exact={true} component={Login} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/register" component={Register} />
+        <Route path="*" component={NoMatchPage} />
+      </Switch>
     </HashRouter>
   );
 }
