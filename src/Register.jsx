@@ -22,10 +22,162 @@ let Register = () => {
     { id: 8, countryName: "Canada" },
   ]);
 
+  let [errors, setErrors] = useState({
+    email: [],
+    password: [],
+    fullName: [],
+    dateOfBirth: [],
+    gender: [],
+    country: [],
+    receiveNewsLetters: [],
+  });
+
+  let [dirty, setDirty] = useState({
+    email: false,
+    password: false,
+    fullName: false,
+    dateOfBirth: false,
+    gender: false,
+    country: false,
+    receiveNewsLetters: false,
+  });
+
+  let [message, setMessage] = useState("");
+
+  //validate
+  let validate = () => {
+    let errorsData = {};
+
+    //email
+    errorsData.email = [];
+
+    //email can't blank
+    if (!state.email) {
+      errorsData.email.push("Email can't be blank");
+    }
+
+    //email regex
+    const validEmailRegex = /\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/;
+    if (state.email) {
+      if (!validEmailRegex.test(state.email)) {
+        errorsData.email.push("Proper email address is expected");
+      }
+    }
+
+    //password
+    errorsData.password = [];
+
+    //password can't blank
+    if (!state.password) {
+      errorsData.password.push("Password can't be blank");
+    }
+
+    //email regex
+    const validPasswordRegex = /((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,15})/;
+    if (state.password) {
+      if (!validPasswordRegex.test(state.password)) {
+        errorsData.password.push(
+          "Password should be 6 to 15 characters long with at least one uppercase letter, one lowercase letter and one digit"
+        );
+      }
+    }
+
+    //fullName
+    errorsData.fullName = [];
+
+    //fullName can't blank
+    if (!state.fullName) {
+      errorsData.fullName.push("Full Name can't be blank");
+    }
+
+    //dateOfBirth
+    errorsData.dateOfBirth = [];
+
+    //dateOfBirth can't blank
+    if (!state.dateOfBirth) {
+      errorsData.dateOfBirth.push("Date of Birth can't be blank");
+    }
+
+    //gender
+    errorsData.gender = [];
+
+    //gender can't blank
+    if (!state.gender) {
+      errorsData.gender.push("Please select gender either male or female");
+    }
+
+    //country
+    errorsData.country = [];
+
+    //country can't blank
+    if (!state.country) {
+      errorsData.country.push("Please select a country");
+    }
+
+    errorsData.receiveNewsLetters = [];
+    setErrors(errorsData);
+  };
+
+  useEffect(validate, [state]);
+
   //executes only once - on initial render =  componentDidMount
   useEffect(() => {
     document.title = "Register - eCommerce";
   }, []);
+
+  let onRegisterClick = async () => {
+    //set all controls as dirty
+    let dirtyData = dirty;
+    Object.keys(dirty).forEach((control) => {
+      dirtyData[control] = true;
+    });
+    setDirty(dirtyData);
+
+    validate();
+
+    if (isValid()) {
+      let response = await fetch("http://localhost:5000/users", {
+        method: "POST",
+        body: JSON.stringify({
+          email: state.email,
+          password: state.password,
+          fullName: state.fullName,
+          dateOfBirth: state.dateOfBirth,
+          gender: state.gender,
+          country: state.country,
+          receiveNewsLetters: state.receiveNewsLetters,
+        }),
+        headers: {
+          "Content-type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        setMessage(
+          <span className="text-success">Successfully Registered</span>
+        );
+      } else {
+        setMessage(
+          <span className="text-danger">Errors in database connection</span>
+        );
+      }
+    } else {
+      setMessage(<span className="text-danger">Errors</span>);
+    }
+  };
+
+  let isValid = () => {
+    let valid = true;
+
+    //reading all controls from 'errors' state
+    for (let control in errors) {
+      if (errors[control].length > 0) {
+        valid = false;
+      }
+    }
+
+    return valid;
+  };
 
   return (
     <div className="row">
@@ -38,6 +190,18 @@ let Register = () => {
             >
               Register
             </h4>
+
+            <ul className="text-danger">
+              {Object.keys(errors).map((control) => {
+                if (dirty[control]) {
+                  return errors[control].map((err) => {
+                    return <li key={err}>{err}</li>;
+                  });
+                } else {
+                  return "";
+                }
+              })}
+            </ul>
           </div>
 
           <div className="card-body border-bottom">
@@ -59,7 +223,15 @@ let Register = () => {
                       [event.target.name]: event.target.value,
                     });
                   }}
+                  onBlur={(event) => {
+                    setDirty({ ...dirty, [event.target.name]: true });
+                    validate();
+                  }}
                 />
+
+                <div className="text-danger">
+                  {dirty["email"] && errors["email"][0] ? errors["email"] : ""}
+                </div>
               </div>
             </div>
             {/* email ends */}
@@ -82,7 +254,17 @@ let Register = () => {
                       [event.target.name]: event.target.value,
                     });
                   }}
+                  onBlur={(event) => {
+                    setDirty({ ...dirty, [event.target.name]: true });
+                    validate();
+                  }}
                 />
+
+                <div className="text-danger">
+                  {dirty["password"] && errors["password"][0]
+                    ? errors["password"]
+                    : ""}
+                </div>
               </div>
             </div>
             {/* password ends */}
@@ -105,7 +287,17 @@ let Register = () => {
                       [event.target.name]: event.target.value,
                     });
                   }}
+                  onBlur={(event) => {
+                    setDirty({ ...dirty, [event.target.name]: true });
+                    validate();
+                  }}
                 />
+
+                <div className="text-danger">
+                  {dirty["fullName"] && errors["fullName"][0]
+                    ? errors["fullName"]
+                    : ""}
+                </div>
               </div>
             </div>
             {/* fullName ends */}
@@ -128,7 +320,17 @@ let Register = () => {
                       [event.target.name]: event.target.value,
                     });
                   }}
+                  onBlur={(event) => {
+                    setDirty({ ...dirty, [event.target.name]: true });
+                    validate();
+                  }}
                 />
+
+                <div className="text-danger">
+                  {dirty["dateOfBirth"] && errors["dateOfBirth"][0]
+                    ? errors["dateOfBirth"]
+                    : ""}
+                </div>
               </div>
             </div>
             {/* dateOfBirth ends */}
@@ -151,6 +353,10 @@ let Register = () => {
                         [event.target.name]: event.target.value,
                       });
                     }}
+                    onBlur={(event) => {
+                      setDirty({ ...dirty, [event.target.name]: true });
+                      validate();
+                    }}
                   />
 
                   <label className="form-check-inline" htmlFor="male">
@@ -172,11 +378,21 @@ let Register = () => {
                         [event.target.name]: event.target.value,
                       });
                     }}
+                    onBlur={(event) => {
+                      setDirty({ ...dirty, [event.target.name]: true });
+                      validate();
+                    }}
                   />
 
                   <label className="form-check-inline" htmlFor="female">
                     Female
                   </label>
+                </div>
+
+                <div className="text-danger">
+                  {dirty["gender"] && errors["gender"][0]
+                    ? errors["gender"]
+                    : ""}
                 </div>
               </div>
             </div>
@@ -199,13 +415,24 @@ let Register = () => {
                       [event.target.name]: event.target.value,
                     });
                   }}
+                  onBlur={(event) => {
+                    setDirty({ ...dirty, [event.target.name]: true });
+                    validate();
+                  }}
                 >
+                  <option value="">Please Select</option>
                   {countries.map((country) => (
                     <option key={country.id} value={country.id}>
                       {country.countryName}
                     </option>
                   ))}
                 </select>
+
+                <div className="text-danger">
+                  {dirty["country"] && errors["country"][0]
+                    ? errors["country"]
+                    : ""}
+                </div>
               </div>
             </div>
             {/* country ends */}
@@ -228,6 +455,10 @@ let Register = () => {
                         [event.target.name]: event.target.checked,
                       });
                     }}
+                    onBlur={(event) => {
+                      setDirty({ ...dirty, [event.target.name]: true });
+                      validate();
+                    }}
                   />
 
                   <label
@@ -237,10 +468,28 @@ let Register = () => {
                     Receive News Letters
                   </label>
                 </div>
+
+                <div className="text-danger">
+                  {dirty["receiveNewsLetters"] &&
+                  errors["receiveNewsLetters"][0]
+                    ? errors["receiveNewsLetters"]
+                    : ""}
+                </div>
               </div>
             </div>
             {/* receiveNewsLetters ends */}
           </div>
+
+          {/* footer starts */}
+          <div className="card-footer text-center">
+            <div className="m-1">{message}</div>
+            <div>
+              <button className="btn btn-primary m-2" onClick={onRegisterClick}>
+                Register
+              </button>
+            </div>
+          </div>
+          {/* footer ends */}
         </div>
       </div>
     </div>
